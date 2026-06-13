@@ -161,16 +161,6 @@ window.MAILPiX._updateAddEmailButtonStatus = function(text){
     }
 }
 
-window.MAILPiX.getall = function (btn){
-	btn.style.background = 'darkgreen';
-	window.MAILPiX._internal_getallchats();
-	btn.style.background = 'forestgreen';
-	window.MAILPiX._statusTextnode.data = "All User Chat Messages and attachments extracted";
-	console.log(window.MAILPiX._MAILPiX_header);
-	console.log(window.MAILPiX._statusTextnode.data);
-}
-
-
 
 // Main tasks functions
 window.MAILPiX._getMe = function (){
@@ -243,11 +233,11 @@ window.MAILPiX._getCheckedEmail_IDs = async function() {
         return null;
     }).filter(item => item !== null);
     await window.MAILPiX._fetchEmailContents(sub_emaillist);
-    console.log(sub_emaillist);
+    //console.log(sub_emaillist);
     sub_emaillist.forEach(email => {window.MAILPiX._emailsList.set(email.id, email);});
    
     
-    console.log(window.MAILPiX._emailsList);
+    //console.log(window.MAILPiX._emailsList);
     window.MAILPiX._updateAddEmailButtonStatus( window.MAILPiX._emailsList.size);
     window.MAILPiX._statusTextnode.data = sub_emaillist.length+" e-mail(s) added";
 
