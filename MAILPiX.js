@@ -221,7 +221,7 @@ window.MAILPiX._getCheckedEmail_IDs = async function() {
     if (!ik) ik = document.documentElement.innerHTML.match(/[^\w]ik=([^&" ]+)/)?.[1];
 
     if (!ik) {
-        console.error("Erro: Chave 'ik' não encontrada.");
+        console.error("Error: Key 'ik' not found.");
         return null;
     }
 
@@ -235,7 +235,7 @@ window.MAILPiX._getCheckedEmail_IDs = async function() {
         
         if (hexId) {
             const decimalId = BigInt("0x" + hexId).toString();
-            let subject = row.querySelector('.bog')?.innerText || 'sem_assunto';
+            let subject = row.querySelector('.bog')?.innerText || 'no_subject';
             subject = subject.replace(/[\\/:*?"<>|]/g, '_').trim();
             return { subject, id: decimalId, ik };
         }
