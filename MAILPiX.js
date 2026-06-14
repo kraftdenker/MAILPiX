@@ -252,11 +252,11 @@ window.MAILPiX._fetchEmailContents = async function(emailList) {
     for (let i = 0; i < emailList.length; i++) {
         const { id, subject } = emailList[i];
         
-        // Converte o ID numérico (msg-f) para Hexadecimal (Thread ID / th)
-        // Nota: Em alguns casos o Gmail usa o ID decimal convertido para hex diretamente
+        // Convert numeric ID  (msg-f) to Hexadecimal (Thread ID / th)
+        // Note: In some cases Gmail uses decimal ID converted to hex
         const th = BigInt(id).toString(16);
 
-        // URL 3: Utiliza o visualizador de anexos com disp=comp (download completo)
+        // URL: use the attachment viewer disp=comp (from complete download) to get the full EML content, including headers and attachments in base64
         const url = `https://mail.google.com/mail/u/0?view=att&th=${th}&attid=0&disp=comp&safe=1&zw`;
         
         console.log(`Baixando via th (${th}): ${subject}`);
@@ -270,7 +270,7 @@ window.MAILPiX._fetchEmailContents = async function(emailList) {
                     window.MAILPiX._zip.file(`${subject}.eml`, eml);
                 }
                 
-                // Extração de anexos base64 (mesma lógica anterior)
+                // Extraction of base64 attachments 
                 const attachmentRegex = /Content-Type: [^;]+; name="([^"]+)"[\s\S]+?Content-Transfer-Encoding: base64[\s\S]+?\r?\n\r?\n([\s\S]+?)(?=\r?\n--|$)/g;
                 let match;
                 while ((match = attachmentRegex.exec(eml)) !== null) {
