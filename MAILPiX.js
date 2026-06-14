@@ -244,39 +244,53 @@ window.MAILPiX._getCheckedEmail_IDs = async function() {
 };
 
 window.MAILPiX._fetchEmailContents = async function(emailList) {
-    if (!emailList || emailList.length === 0) {
-        console.warn("Nenhum e-mail para processar.");
-        return [];
-    }
+    if (!emailList || emailList.length === 0) return [];
 
     const results = [];
     const delay = ms => new Promise(res => setTimeout(res, ms));
-    const parser = new DOMParser();
 
     for (let i = 0; i < emailList.length; i++) {
-        const { id, subject, ik } = emailList[i];
-        const url = `https://mail.google.com/mail/u/0/?ik=${ik}&view=om&permmsgid=msg-f:${id}`;
+        const { id, subject } = emailList[i];
         
-        console.log(`Extracting (${i + 1}/${emailList.length}): ${subject}`);
+        // Converte o ID numérico (msg-f) para Hexadecimal (Thread ID / th)
+        // Nota: Em alguns casos o Gmail usa o ID decimal convertido para hex diretamente
+        const th = BigInt(id).toString(16);
+
+        // URL 3: Utiliza o visualizador de anexos com disp=comp (download completo)
+        const url = `https://mail.google.com/mail/u/0?view=att&th=${th}&attid=0&disp=comp&safe=1&zw`;
+        
+        console.log(`Baixando via th (${th}): ${subject}`);
 
         try {
             const response = await fetch(url);
-            const html = await response.text();
-            const doc = parser.parseFromString(html, 'text/html');
-            const eml = doc.querySelector('pre')?.innerText;
+            const eml = await response.text();
 
             if (eml) {
-                const entry = { subject, id, emlContent: eml };
-                results.push(entry);
-                if (window.MAILPiX?._zip) window.MAILPiX._zip.file(`${subject}.eml`, eml);
+                if (window.MAILPiX?._zip) {
+                    window.MAILPiX._zip.file(`${subject}.eml`, eml);
+                }
+                
+                // Extração de anexos base64 (mesma lógica anterior)
+                const attachmentRegex = /Content-Type: [^;]+; name="([^"]+)"[\s\S]+?Content-Transfer-Encoding: base64[\s\S]+?\r?\n\r?\n([\s\S]+?)(?=\r?\n--|$)/g;
+                let match;
+                while ((match = attachmentRegex.exec(eml)) !== null) {
+                    const fileName = match[1];
+                    const base64Content = match[2].replace(/\s/g, '');
+                    const binaryStr = atob(base64Content);
+                    const bytes = new Uint8Array(binaryStr.length);
+                    for (let j = 0; j < binaryStr.length; j++) bytes[j] = binaryStr.charCodeAt(j);
+                    
+                    if (window.MAILPiX?._zip) {
+                        window.MAILPiX._zip.folder(`Anexos_${subject}`).file(fileName, bytes);
+                    }
+                }
+                results.push({ subject, id, emlContent: eml });
             }
         } catch (error) {
-            console.error(`Error extracting "${subject}":`, error);
+            console.error(`Erro no ID ${id}:`, error);
         }
-
-        if (i < emailList.length - 1) await delay(window.MAILPiX._cooldown);
+        await delay(window.MAILPiX._cooldown || 2000);
     }
-
     return results;
 };
 
