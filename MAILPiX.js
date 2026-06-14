@@ -259,7 +259,7 @@ window.MAILPiX._fetchEmailContents = async function(emailList) {
         // URL: use the attachment viewer disp=comp (from complete download) to get the full EML content, including headers and attachments in base64
         const url = `https://mail.google.com/mail/u/0?view=att&th=${th}&attid=0&disp=comp&safe=1&zw`;
         
-        console.log(`Baixando via th (${th}): ${subject}`);
+        console.log(`Downloading (${i+1}/${emailList.length}) th (${th}): ${subject}`);
 
         try {
             const response = await fetch(url);
@@ -287,7 +287,7 @@ window.MAILPiX._fetchEmailContents = async function(emailList) {
                 results.push({ subject, id, emlContent: eml });
             }
         } catch (error) {
-            console.error(`Erro no ID ${id}:`, error);
+            console.error(`Error ID ${id}:`, error);
         }
         await delay(window.MAILPiX._cooldown || 2000);
     }
@@ -301,6 +301,7 @@ window.MAILPiX.takeout = async function() {
     }
 
     try {
+        window.MAILPiX._statusTextnode.data = "Compressing data. PLEASE WAIT";
         const content = await window.MAILPiX._zip.generateAsync({ type: "uint8array", compressionOptions: { level: 9 } });
         saveFile(content, `MAILPiX_${userAccount}.zip`);
         const hashBuffer = await crypto.subtle.digest('SHA-512',new Uint8Array(content));
