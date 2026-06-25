@@ -21,6 +21,8 @@ Soares, A. (2022). WhatsApp Web Client Live Forensics Technique. In Proceedings 
 
 ## Description:
 A script that extracts mails in eml format (RFC 5322). In line with forensics procedures, the technique extracts digital data that can be loaded into forensic tools for analysis or visualized direct using a mail application.
+More details in the article:
+<https://medium.com/@alberto.magno/gmail-live4n6-liveforensics-a583d8da8635>
 
 ## Usage
 * Logged in an gmail account web interface <https://mail.google.com/>
